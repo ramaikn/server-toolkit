@@ -1,0 +1,35 @@
+# SOAL LATIHAN: n8n terus restart. Cari penyebabnya dari log SEBELUM membaca berkas ini.
+# Pemakaian:  mkdir ~/latihan && cp lab/compose.broken.yaml ~/latihan/compose.yaml && cd ~/latihan && docker compose up -d
+# Bersihkan:  cd ~/latihan && docker compose down -v && cd ~ && rm -r ~/latihan   (hanya folder latihan ini)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: latihan123
+      POSTGRES_DB: n8n
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: 127.0.0.1
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: latihan123
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  dbdata:
