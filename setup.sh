@@ -41,7 +41,7 @@ Pemakaian: ./setup.sh [opsi]
       --only a,b       pasang hanya tool ini (abaikan profil)
       --skip a,b       lewati tool ini
   -i, --interactive    pilih tool lewat menu
-  -y, --yes            jangan tanya konfirmasi
+  -y, --yes            lewati konfirmasi di mode --interactive
       --dry-run        tampilkan rencana tanpa memasang apa pun
       --check          cek status tool saja
       --list           daftar tool dan profil
@@ -180,7 +180,8 @@ main() {
   if [ "$MODE" = install ]; then
     printf '  Profil   : %s\n  Dipasang : %s\n' "$([ -n "$ONLY" ] && echo kustom || echo "$PROFILE")" "$SELECTED"
     [ "$DRY_RUN" = 1 ] && info "Mode dry-run: tidak ada yang dipasang."
-    confirm "Lanjutkan?" y || die "Dibatalkan."
+    # Bawaan langsung jalan tanpa bertanya; konfirmasi hanya setelah memilih lewat menu.
+    if [ "$INTERACTIVE" = 1 ]; then confirm "Lanjutkan?" y || die "Dibatalkan."; fi
     prime_sudo
   fi
 

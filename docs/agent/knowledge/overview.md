@@ -6,6 +6,7 @@ Setelah `git clone`, satu perintah menyiapkan komputer/server baru untuk vibe co
 Versi lama (installer n8n khusus Ubuntu, backup/restore, WAHA, template workflow) dipindah utuh ke `backup/legacy-n8n-toolkit/` pada 2026-11-11 dan tidak lagi dirawat.
 
 ## Struktur
+- `bootstrap.sh` / `bootstrap.ps1`: perintah satu baris untuk mesin tanpa git (`curl ... | bash`, `irm ... | iex`). Pasang git, clone atau `pull --ff-only` ke `~/code/server-toolkit`, lalu jalankan setup dengan argumen yang diteruskan. `TOOLKIT_REPO`/`TOOLKIT_DIR` untuk uji dengan repo lokal. `bootstrap.ps1` dibungkus `& { } @args` dan tanpa `exit` karena berjalan di terminal user lewat iex.
 - `setup.sh`: pintu masuk Linux/macOS/WSL (bash, kompatibel bash 3.2 macOS: tanpa associative array, tanpa mapfile).
 - `setup.cmd` -> `setup.ps1`: pintu masuk Windows (PowerShell 5.1, ExecutionPolicy Bypass per proses).
 - `config/profiles.conf`: sumber tunggal daftar tool (`[tools]`) dan profil (`[profiles]`). Urutan di profil = urutan pasang.
@@ -18,7 +19,7 @@ Versi lama (installer n8n khusus Ubuntu, backup/restore, WAHA, template workflow
 1. Parse opsi (gaya `--opsi` sama di kedua OS).
 2. Deteksi platform, segarkan PATH sesi dengan folder tool per-user.
 3. Tentukan daftar tool dari profil/`--only`/`--skip`, opsional menu `--interactive`.
-4. Konfirmasi sekali (lewati dengan `--yes`); di Linux minta sudo di awal bila ada `base`/`docker`, dijaga tetap aktif.
+4. Tanpa pertanyaan (konfirmasi hanya di `--interactive`); di Linux minta sudo di awal bila ada `base`/`docker`, dijaga tetap aktif.
 5. Per tool: supported? -> check (lewati bila ada) -> install -> check ulang. Dependensi lewat `tool_require`/`Invoke-ToolRequire` (gemini/qwen/opencode-windows butuh node, n8n butuh docker).
 6. Simpan PATH permanen (blok bertanda di rc shell / PATH User), cetak ringkasan + langkah lanjutan. Exit 1 jika ada yang gagal.
 
@@ -26,7 +27,7 @@ Versi lama (installer n8n khusus Ubuntu, backup/restore, WAHA, template workflow
 - Installer resmi tiap tool: opencode `opencode.ai/v2/install` (Unix) dan npm `@opencode/cli` (Windows, docs v2 tidak menyediakan winget), Claude `claude.ai/install.sh|ps1`, bun `bun.sh/install`, uv `astral.sh/uv`, fnm `fnm.vercel.app/install` / winget `Schniz.fnm`, Docker `get.docker.com` (Ubuntu/Debian/Fedora/RHEL) atau paket distro, Docker Desktop winget/brew cask, OpenCode Desktop winget `SST.OpenCodeDesktop` / brew cask `opencode-desktop`. Gemini dan Qwen hanya dirilis via npm.
 - Node lewat fnm per-user; PATH memakai `$FNM_DIR/aliases/default` sehingga tidak perlu `fnm env`. Alpine (musl) memakai paket `nodejs npm` distro.
 - Skrip installer diunduh ke file sementara dulu, bukan `curl | bash`.
-- Windows: winget dicoba `--scope user` dulu, lalu tanpa scope. Docker Desktop satu-satunya yang machine-wide dan ditanya dulu.
+- Windows: winget dicoba `--scope user` dulu, lalu tanpa scope. Docker Desktop satu-satunya yang machine-wide (hanya profil `full`, izin lewat dialog admin Windows).
 - `sudo ./setup.sh` ditolak; jalankan sebagai user, sudo diminta sendiri. Root murni (VPS baru) diizinkan.
 - Qwen OAuth gratis berakhir 15 April 2026; Qwen tetap dipasang atas pilihan user.
 - `.env` n8n dibuat sekali (acak, izin 600) dan tidak pernah ditimpa. Di Windows TZ=UTC karena nama zona Windows tidak dikenal container.

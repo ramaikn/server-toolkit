@@ -1,5 +1,6 @@
-# Docker Desktop lewat winget. Ini satu-satunya tool yang dipasang untuk seluruh
-# komputer (butuh admin dan WSL2), jadi ditanyakan dulu kecuali --yes.
+# Docker Desktop lewat winget. Satu-satunya tool yang dipasang untuk seluruh komputer
+# (butuh admin dan WSL2). Hanya ada di profil full, dan Windows sendiri memunculkan
+# dialog izin admin, jadi tidak ditanya lagi di sini.
 
 function Test-Tool_docker {
     if (-not (Test-Command docker)) { return $false }
@@ -9,10 +10,7 @@ function Test-Tool_docker {
 function Get-ToolVersion_docker { (& docker --version) 2>$null }
 
 function Install-Tool_docker {
-    if (-not (Confirm-Step 'Docker Desktop dipasang untuk seluruh komputer dan butuh izin admin. Lanjut?')) {
-        Write-Warn 'Docker dilewati atas pilihan user.'
-        return $false
-    }
+    Write-Info 'Docker Desktop dipasang untuk seluruh komputer; setujui dialog izin admin bila muncul.'
     return (Install-WingetPackage 'Docker.DockerDesktop' -Machine)
 }
 

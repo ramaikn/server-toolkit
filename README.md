@@ -10,20 +10,32 @@ Skrip mendeteksi OS sendiri, melewati tool yang sudah ada, dan aman dijalankan u
 | macOS | `./setup.sh` |
 | Windows 10/11 | `setup.cmd` |
 
-## Mulai
-Linux, macOS, WSL:
+## Mulai di PC atau server baru (cukup satu baris)
+Tidak perlu git terpasang lebih dulu. Perintah ini memasang git, mengunduh repo ke `~/code/server-toolkit`, lalu langsung memasang semuanya tanpa bertanya.
+
+Ubuntu, Debian, Fedora, Arch, WSL, macOS:
 ```bash
-git clone https://github.com/ramaikn/server-toolkit && cd server-toolkit && ./setup.sh
+curl -fsSL https://raw.githubusercontent.com/ramaikn/server-toolkit/master/bootstrap.sh | bash
 ```
 
-Windows (PowerShell atau CMD, bukan "Run as administrator"):
+Windows (PowerShell biasa, bukan "Run as administrator"):
 ```powershell
-git clone https://github.com/ramaikn/server-toolkit; cd server-toolkit; .\setup.cmd
+irm https://raw.githubusercontent.com/ramaikn/server-toolkit/master/bootstrap.ps1 | iex
 ```
 
-Belum ada git? Di Windows: `winget install Git.Git`. Di Ubuntu: `sudo apt install -y git`. Di Alpine: `apk add git bash`.
+Yang tetap muncul hanya izin dari sistem: password sudo sekali di Linux, dan dialog izin admin di Windows untuk Git serta Docker Desktop. Selesai memasang, buka terminal baru supaya PATH baru terbaca.
 
-Selesai memasang, buka terminal baru supaya PATH baru terbaca.
+Dengan opsi, misalnya profil `full`:
+```bash
+curl -fsSL https://raw.githubusercontent.com/ramaikn/server-toolkit/master/bootstrap.sh | bash -s -- --profile full
+```
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/ramaikn/server-toolkit/master/bootstrap.ps1))) --profile full
+```
+
+Kalau repo sudah di-clone, jalankan langsung `./setup.sh` (Linux/macOS) atau `.\setup.cmd` (Windows). Menjalankan bootstrap lagi juga aman: repo di-update dengan `git pull`, tool yang sudah ada dilewati.
+
+Catatan: di macOS baru, git datang dari Command Line Tools. Bootstrap membuka dialog pemasangannya; setelah selesai, jalankan perintahnya sekali lagi.
 
 ## Profil
 | Profil | Isi |
@@ -43,7 +55,7 @@ Sama untuk `setup.sh` dan `setup.cmd`.
 | `--only claude,gemini` | pasang tool tertentu saja |
 | `--skip qwen` | lewati tool tertentu |
 | `--interactive` | pilih tool lewat menu bernomor |
-| `--yes` | tanpa konfirmasi |
+| `--yes` | lewati konfirmasi di mode `--interactive` |
 | `--dry-run` | tampilkan rencana, tidak memasang apa pun |
 | `--check` | cek status semua tool |
 | `--list` | daftar tool dan profil |
@@ -74,7 +86,8 @@ Tanda `-` di nama diganti `_` untuk nama fungsi. Kontrak lengkap ada di komentar
 ## Struktur
 | Lokasi | Isi |
 |---|---|
-| `setup.sh`, `setup.cmd`, `setup.ps1` | Pintu masuk |
+| `bootstrap.sh`, `bootstrap.ps1` | Perintah satu baris: pasang git, clone/update, jalankan setup |
+| `setup.sh`, `setup.cmd`, `setup.ps1` | Pintu masuk setelah repo ada |
 | `config/profiles.conf` | Daftar tool dan profil, dipakai kedua OS |
 | `lib/unix/`, `lib/windows/` | Log, deteksi OS, package manager, PATH, runner tool |
 | `tools/unix/`, `tools/windows/` | Satu file per tool |

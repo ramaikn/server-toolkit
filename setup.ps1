@@ -34,7 +34,7 @@ Pemakaian: setup.cmd [opsi]
       --only a,b       pasang hanya tool ini (abaikan profil)
       --skip a,b       lewati tool ini
   -i, --interactive    pilih tool lewat menu
-  -y, --yes            jangan tanya konfirmasi
+  -y, --yes            lewati konfirmasi di mode --interactive
       --dry-run        tampilkan rencana tanpa memasang apa pun
       --check          cek status tool saja
       --list           daftar tool dan profil
@@ -151,7 +151,8 @@ function Invoke-Main([string[]]$argv) {
         Write-Host "  Profil   : $label"
         Write-Host "  Dipasang : $($selected -join ' ')"
         if ($script:DryRun) { Write-Info 'Mode dry-run: tidak ada yang dipasang.' }
-        if (-not (Confirm-Step 'Lanjutkan?')) { throw 'Dibatalkan.' }
+        # Bawaan langsung jalan tanpa bertanya; konfirmasi hanya setelah memilih lewat menu.
+        if ($script:Interactive -and -not (Confirm-Step 'Lanjutkan?')) { throw 'Dibatalkan.' }
     }
 
     Write-Title $(if ($script:Mode -eq 'check') { 'Memeriksa tool' } else { 'Memasang tool' })
