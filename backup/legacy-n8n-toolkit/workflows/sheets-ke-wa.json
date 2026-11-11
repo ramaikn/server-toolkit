@@ -1,0 +1,90 @@
+{
+  "name": "Sheets ke WA (kirim yang belum terkirim)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 5 }] }
+      },
+      "name": "Tiap 5 Menit",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "documentId": { "__rl": true, "value": "GANTI_ID_SPREADSHEET", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Kirim", "mode": "name" },
+        "options": {}
+      },
+      "name": "Baca Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.Terkirim }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Belum Terkirim?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://waha:3000/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "X-Api-Key", "value": "GANTI_WAHA_API_KEY" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ session: 'default', chatId: $json.Nomor + '@c.us', text: $json.Pesan }) }}",
+        "options": {}
+      },
+      "name": "Kirim WA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, -80]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": { "__rl": true, "value": "GANTI_ID_SPREADSHEET", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Kirim", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Baca Sheets').item.json.row_number }}",
+            "Terkirim": "Ya"
+          },
+          "matchingColumns": ["row_number"],
+          "schema": []
+        },
+        "options": {}
+      },
+      "name": "Tandai Terkirim",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [880, -80]
+    }
+  ],
+  "connections": {
+    "Tiap 5 Menit": { "main": [[{ "node": "Baca Sheets", "type": "main", "index": 0 }]] },
+    "Baca Sheets": { "main": [[{ "node": "Belum Terkirim?", "type": "main", "index": 0 }]] },
+    "Belum Terkirim?": { "main": [[{ "node": "Kirim WA", "type": "main", "index": 0 }], []] },
+    "Kirim WA": { "main": [[{ "node": "Tandai Terkirim", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

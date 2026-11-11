@@ -1,0 +1,51 @@
+{
+  "name": "WA masuk ke Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wa-masuk",
+        "options": {}
+      },
+      "name": "Terima Pesan WA",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "wa-masuk"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "Nomor", "value": "={{ $json.body.payload.from }}", "type": "string" },
+            { "id": "a2", "name": "Pesan", "value": "={{ $json.body.payload.body }}", "type": "string" },
+            { "id": "a3", "name": "Waktu", "value": "={{ $now.toISO() }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Rapikan Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "value": "GANTI_ID_SPREADSHEET", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Pesan", "mode": "name" },
+        "columns": { "mappingMode": "autoMapInputData", "value": {}, "matchingColumns": [], "schema": [] },
+        "options": {}
+      },
+      "name": "Catat ke Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [440, 0]
+    }
+  ],
+  "connections": {
+    "Terima Pesan WA": { "main": [[{ "node": "Rapikan Data", "type": "main", "index": 0 }]] },
+    "Rapikan Data": { "main": [[{ "node": "Catat ke Sheets", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

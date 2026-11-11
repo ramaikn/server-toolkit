@@ -11,7 +11,6 @@ set -euo pipefail
 # shellcheck source=lib/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 
-INSTALL_DIR="${INSTALL_DIR:-/opt/n8n-stack}"
 ENV_FILE="$INSTALL_DIR/.env"
 
 require_root_and_apt() {
@@ -74,6 +73,16 @@ TZ=$timezone
 N8N_BIND_ADDRESS=$bind
 N8N_PORT=5678
 EOF
+  if ask_yes_no "Pasang gateway WhatsApp WAHA? (tidak resmi, nomor bisa diblokir WhatsApp)" n; then
+    cat >>"$ENV_FILE" <<EOF
+COMPOSE_PROFILES=waha
+WAHA_BIND_ADDRESS=127.0.0.1
+WAHA_PORT=3000
+WAHA_API_KEY=$(openssl rand -hex 16)
+WAHA_DASHBOARD_PASSWORD=$(openssl rand -hex 8)
+EOF
+    info "WAHA diaktifkan. Kunci API dan password dashboard ada di $ENV_FILE (baca dengan sudo)."
+  fi
   chmod 600 "$ENV_FILE"
   info ".env dibuat di $ENV_FILE (izin 600, hanya root yang bisa membaca)."
 }

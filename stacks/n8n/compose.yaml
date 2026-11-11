@@ -1,4 +1,5 @@
-# n8n + PostgreSQL. Nilai rahasia dibaca dari file .env di folder yang sama.
+# n8n + PostgreSQL. Disalin oleh setup ke ~/n8n-stack; rahasia dibaca dari .env di folder itu.
+# Port hanya dibuka di 127.0.0.1. Dari komputer lain pakai tunnel SSH.
 services:
   db:
     image: postgres:16-alpine
@@ -22,15 +23,15 @@ services:
       - "${N8N_BIND_ADDRESS:-127.0.0.1}:${N8N_PORT:-5678}:5678"
     environment:
       DB_TYPE: postgresdb
-      # Host database = NAMA LAYANAN ("db"), bukan 127.0.0.1 / localhost
+      # Host database = nama layanan "db", bukan localhost
       DB_POSTGRESDB_HOST: db
       DB_POSTGRESDB_PORT: 5432
       DB_POSTGRESDB_DATABASE: n8n
       DB_POSTGRESDB_USER: n8n
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
-      GENERIC_TIMEZONE: ${TZ:-Asia/Makassar}
-      TZ: ${TZ:-Asia/Makassar}
+      GENERIC_TIMEZONE: ${TZ:-UTC}
+      TZ: ${TZ:-UTC}
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:
